@@ -2,9 +2,8 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
-use std::cmp::Ord;
+use std::cmp::{Ord, Ordering};
 use std::default::Default;
 
 pub struct Heap<T>
@@ -18,7 +17,7 @@ where
 
 impl<T> Heap<T>
 where
-    T: Default,
+    T: Ord + Default,
 {
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
@@ -37,7 +36,18 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut current_idx = self.count;
+        while current_idx > 1 {
+            let parent_idx = self.parent_idx(current_idx);
+            if (self.comparator)(&self.items[current_idx], &self.items[parent_idx]) {
+                self.items.swap(current_idx, parent_idx);
+                current_idx = parent_idx;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +67,10 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        match self.items[self.left_child_idx(idx)].cmp(&self.items[self.right_child_idx(idx)]) {
+            Ordering::Less => self.left_child_idx(idx),
+            _ => self.right_child_idx(idx),
+        }
     }
 }
 
@@ -79,13 +91,32 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Ord,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+
+        self.items.swap(1, self.count);
+        let item = self.items.pop().unwrap();
+        self.count -= 1;
+        if self.count < 3 {
+            return Some(item);
+        }
+        let current_idx = 1;
+        let child_idx ;
+        if (self.comparator)(&self.items[self.left_child_idx(current_idx)], &self.items[self.right_child_idx(current_idx)]) {
+            child_idx = self.left_child_idx(current_idx)
+        } else {
+            child_idx = self.right_child_idx(current_idx)
+        };
+        if (self.comparator)(&self.items[child_idx], &self.items[current_idx]) {
+            self.items.swap(current_idx, child_idx);
+        }
+        Some(item)
     }
 }
 

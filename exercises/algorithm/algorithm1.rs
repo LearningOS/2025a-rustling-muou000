@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +68,40 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+    pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
+    where
+        T: PartialOrd + Clone,
+    {
+        let mut list_c = LinkedList::<T>::new();
+        let mut idx_a = 0;
+        let mut idx_b = 0;
+
+        while idx_a < list_a.length && idx_b < list_b.length {
+            let val_a = list_a.get(idx_a as i32).unwrap();
+            let val_b = list_b.get(idx_b as i32).unwrap();
+            if val_a <= val_b {
+                list_c.add(val_a.clone());
+                idx_a += 1;
+            } else {
+                list_c.add(val_b.clone());
+                idx_b += 1;
+            }
         }
-	}
+
+        while idx_a < list_a.length {
+            let val_a = list_a.get(idx_a as i32).unwrap();
+            list_c.add(val_a.clone());
+            idx_a += 1;
+        }
+
+        while idx_b < list_b.length {
+            let val_b = list_b.get(idx_b as i32).unwrap();
+            list_c.add(val_b.clone());
+            idx_b += 1;
+        }
+
+        list_c
+    }
 }
 
 impl<T> Display for LinkedList<T>
@@ -135,7 +159,7 @@ mod tests {
 		let vec_a = vec![1,3,5,7];
 		let vec_b = vec![2,4,6,8];
 		let target_vec = vec![1,2,3,4,5,6,7,8];
-		
+
 		for i in 0..vec_a.len(){
 			list_a.add(vec_a[i]);
 		}
